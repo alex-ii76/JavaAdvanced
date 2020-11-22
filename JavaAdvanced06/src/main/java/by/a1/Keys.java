@@ -7,15 +7,44 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+public class Keys {
 
+	public final static String SELECT_FROM_KEYS = "SELECT key, value FROM mybase.keys ORDER BY ID";
+	public final static String INSERT_INTO_KEYS = "INSERT INTO mybase.keys (key, value) VALUES (?,?)";
 
-public class App {
-	
-	
-	public final static String SELECT_FROM_USERS = "SELECT name, age FROM mybase.users ORDER BY ID";
-	public final static String INSERT_INTO_USERS = "INSERT INTO users (name, age) VALUES (?,?)";
+	private String srtConnection;
 
-	public void InsertUser(String name, int age) {
+	private String key;
+	private String value;
+
+	private PropConnection propConnection;
+
+	public Keys() {
+		super();
+		// this.key = key;
+		// this.value = value;
+		propConnection = new PropConnection();
+		this.srtConnection = String.format("jdbc:mysql://%s?user=%s&password=%s", propConnection.getHost(),
+				propConnection.getUser(), propConnection.getPassword());
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public void InsertKey(String key, String Value) {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -28,13 +57,12 @@ public class App {
 		PreparedStatement pstmt = null;
 
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/mybase?" + "user=root&password=");
-
+		
+			conn = DriverManager.getConnection(this.srtConnection);
 			System.out.println("Connected...");
-
-			pstmt = conn.prepareStatement(INSERT_INTO_USERS);
-			pstmt.setString(1,name);
-			pstmt.setInt(2, age);
+			pstmt = conn.prepareStatement(INSERT_INTO_KEYS);
+			pstmt.setString(1, key);
+			pstmt.setString(2, value);
 			pstmt.execute();
 		} catch (SQLException ex) {
 			// handle any errors
@@ -42,8 +70,6 @@ public class App {
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
 		} finally {
-
-			
 			if (pstmt != null) {
 				try {
 					pstmt.close();
@@ -53,10 +79,9 @@ public class App {
 				pstmt = null;
 			}
 		}
-
 	}
 
-	public  void SelectUsers() {
+	public void SelecKeys() {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -69,15 +94,13 @@ public class App {
 		Statement stmt = null;
 		ResultSet rs = null;
 		try {
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/mybase?" + "user=root&password=");
-
+			conn = DriverManager.getConnection(this.srtConnection);
 			System.out.println("Connected...");
-
 			stmt = conn.createStatement();
-			rs = stmt.executeQuery(SELECT_FROM_USERS);
-
+			rs = stmt.executeQuery(SELECT_FROM_KEYS);
+			
 			while (rs.next()) {
-				System.out.println(rs.getString("name") + ":" + rs.getInt("age"));
+				System.out.println(rs.getString("key") + ":" + rs.getInt("value"));
 			}
 
 		} catch (SQLException ex) {
@@ -105,11 +128,6 @@ public class App {
 				stmt = null;
 			}
 		}
+	} // END SelecKeys
 
-	}
-
-	public static void main(String[] args) {
-		PropConnection propconnection = new  PropConnection();
-		
-	}
 }
