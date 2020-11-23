@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Scanner;
 
 public class Keys {
 
@@ -13,38 +14,41 @@ public class Keys {
 	public final static String INSERT_INTO_KEYS = "INSERT INTO mybase.keys (key, value) VALUES (?,?)";
 
 	private String srtConnection;
-
-	private String key;
-	private String value;
-
 	private PropConnection propConnection;
 
 	public Keys() {
 		super();
-		// this.key = key;
-		// this.value = value;
 		propConnection = new PropConnection();
 		this.srtConnection = String.format("jdbc:mysql://%s?user=%s&password=%s", propConnection.getHost(),
 				propConnection.getUser(), propConnection.getPassword());
 	}
 
-	public String getKey() {
-		return key;
+	public void addKeys() {
+
+		try (Scanner scanner = new Scanner(System.in);) {
+			do {
+
+				System.out.println("Enter Key");
+				String key = scanner.nextLine();
+				// System.out.println("key:"+key);
+				System.out.println("Enter Value");
+				String value = scanner.nextLine();
+				// System.out.println("value: "+value);
+				InsertKey(key, value);
+				System.out.println("Do you want add one more key (y/n)");
+				String yn = scanner.nextLine();
+				if (!yn.toUpperCase().equals("Y")) {
+					// System.out.println(yn.toUpperCase() == "Y");
+					break;
+				}
+			} while (true);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
 	}
 
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public void InsertKey(String key, String Value) {
+	private void InsertKey(String key, String value) {
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -57,7 +61,7 @@ public class Keys {
 		PreparedStatement pstmt = null;
 
 		try {
-		
+
 			conn = DriverManager.getConnection(this.srtConnection);
 			System.out.println("Connected...");
 			pstmt = conn.prepareStatement(INSERT_INTO_KEYS);
@@ -77,6 +81,15 @@ public class Keys {
 				} // ignore
 
 				pstmt = null;
+				if (conn != null) {
+					try {
+						conn.close();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				conn = null;
 			}
 		}
 	}
@@ -98,7 +111,7 @@ public class Keys {
 			System.out.println("Connected...");
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery(SELECT_FROM_KEYS);
-			
+
 			while (rs.next()) {
 				System.out.println(rs.getString("key") + ":" + rs.getInt("value"));
 			}
@@ -126,6 +139,15 @@ public class Keys {
 				} // ignore
 
 				stmt = null;
+				if (conn != null) {
+					try {
+						conn.close();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				conn = null;
 			}
 		}
 	} // END SelecKeys
