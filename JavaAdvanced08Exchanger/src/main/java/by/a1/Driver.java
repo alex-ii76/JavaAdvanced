@@ -30,6 +30,11 @@ public class Driver implements Runnable {
 				unloadExchanger.exchange(truck);
 				truck = unloadExchanger.exchange(null);
 
+				synchronized (pile) {
+					if (pile.isEmpty() && truck.isEmpty()) {
+						break;
+					}
+				}
 				truck.goToLoader();
 				TimeUnit.SECONDS.sleep(5);
 				truck = loadExchanger.exchange(truck);
@@ -38,11 +43,7 @@ public class Driver implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			synchronized (pile) {
-				if (pile.isEmpty() && truck.isEmpty()) {
-					break;
-				}
-			}
+			
 		}
 	}
 }
